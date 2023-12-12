@@ -27,21 +27,16 @@ pytest_plugins = ["agbenchmark.utils.dependencies"]
 
 
 def resolve_workspace(workspace: str) -> str:
-    if workspace.startswith("${") and workspace.endswith("}"):
-        # Extract the string inside ${...}
-        path_expr = workspace[2:-1]
+    if not workspace.startswith("${") or not workspace.endswith("}"):
+        return os.path.abspath(Path(os.getcwd()) / workspace)
+    # Extract the string inside ${...}
+    path_expr = workspace[2:-1]
 
         # Check if it starts with "os.path.join"
-        if path_expr.strip().startswith("os.path.join"):
-            # Evaluate the path string
-            path_value = eval(path_expr)
-
-            # Replace the original string with the evaluated result
-            return path_value
-        else:
-            raise ValueError("Invalid workspace path expression.")
+    if path_expr.strip().startswith("os.path.join"):
+        return eval(path_expr)
     else:
-        return os.path.abspath(Path(os.getcwd()) / workspace)
+        raise ValueError("Invalid workspace path expression.")
 
 
 @pytest.fixture(scope="module")
@@ -265,7 +260,7 @@ def run_agent(request: Any) -> Any:
         )
         time.sleep(3)
         yield
-        print(f"Terminating agent")
+        print("Terminating agent")
         process.terminate()
     else:
         yield

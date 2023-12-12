@@ -62,9 +62,8 @@ class Eval(BaseModel):
         if "type" in values and values["type"] == "llm":
             if v is None:
                 raise ValueError(f"{field.name} must be provided when type is 'llm'")
-        else:
-            if v is not None:
-                raise ValueError(f"{field.name} should only exist when type is 'llm'")
+        elif v is not None:
+            raise ValueError(f"{field.name} should only exist when type is 'llm'")
         return v
 
     @validator("scoring")
@@ -140,8 +139,7 @@ class SuiteConfig(BaseModel):
 
     @root_validator
     def check_attributes(cls: Any, values: Dict[str, Any]) -> Dict[str, Any]:
-        same_task = values.get("same_task")
-        if same_task:
+        if same_task := values.get("same_task"):
             if (
                 values.get("task") is None
                 or values.get("cutoff") is None
@@ -151,11 +149,10 @@ class SuiteConfig(BaseModel):
                 raise ValueError(
                     f"task, cutoff, dependencies, and shared_category must be provided when same_task is True for test {cls.prefix}."
                 )
-        else:
-            if values.get("reverse_order") is None:
-                raise ValueError(
-                    f"reverse_order must be provided when same_task is False for test {cls.prefix}."
-                )
+        elif values.get("reverse_order") is None:
+            raise ValueError(
+                f"reverse_order must be provided when same_task is False for test {cls.prefix}."
+            )
 
         return values
 
@@ -202,22 +199,13 @@ class SuiteConfig(BaseModel):
             "category": self.shared_category,
             "task": self.task,
             "cutoff": self.cutoff,
+            "info": {datum["name"]: datum["info"] for datum in file_datum}
+            if not self.info
+            else self.info,
+            "ground": {datum["name"]: datum["ground"] for datum in file_datum}
+            if not self.ground
+            else self.ground,
         }
-
-        # if the SuiteConfig does not yet have info or ground, we use the info and ground from the data.json
-        if not self.info:
-            same_task_data["info"] = {
-                datum["name"]: datum["info"] for datum in file_datum
-            }
-        else:
-            same_task_data["info"] = self.info
-
-        if not self.ground:
-            same_task_data["ground"] = {
-                datum["name"]: datum["ground"] for datum in file_datum
-            }
-        else:
-            same_task_data["ground"] = self.ground
 
         return ChallengeData(**same_task_data)
 

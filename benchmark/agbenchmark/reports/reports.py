@@ -61,11 +61,8 @@ def generate_combined_suite_report(
             if DIFFICULTY_MAP[raw_difficulty] > num_highest_difficulty:
                 num_highest_difficulty = DIFFICULTY_MAP[raw_difficulty]
                 str_highest_difficulty = raw_difficulty.value
-        else:
-            # add dependency fail here
-
-            if not mock:  # don't remove if it's a mock test
-                agbenchmark.start_benchmark.REGRESSION_MANAGER.remove_test(test_name)
+        elif not mock:  # don't remove if it's a mock test
+            agbenchmark.start_benchmark.REGRESSION_MANAGER.remove_test(test_name)
 
         prev_test_results: list[bool] = get_previous_test_results(
             test_name, test_info_details
@@ -164,11 +161,11 @@ def generate_single_call_report(
         },
     }
 
-    mock = "--mock" in sys.argv  # Check if --mock is in sys.argv
-
     if call.excinfo is None:
         info_details["metrics"]["success"] = True
     else:
+        mock = "--mock" in sys.argv  # Check if --mock is in sys.argv
+
         if not mock:  # don't remove if it's a mock test
             agbenchmark.start_benchmark.REGRESSION_MANAGER.remove_test(test_name)
         info_details["metrics"]["fail_reason"] = str(call.excinfo.value)
