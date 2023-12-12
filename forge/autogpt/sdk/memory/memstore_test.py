@@ -8,8 +8,7 @@ from autogpt.sdk.memory.memstore import MemStore
 
 @pytest.fixture
 def memstore():
-    mem = MemStore(".test_mem_store")
-    yield mem
+    yield MemStore(".test_mem_store")
     shutil.rmtree(".test_mem_store")
 
 

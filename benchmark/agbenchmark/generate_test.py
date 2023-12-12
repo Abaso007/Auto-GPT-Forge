@@ -265,11 +265,13 @@ def generate_tests() -> None:  # sourcery skip: invert-any-all
         in_regression = regression_tests.get(data["name"], None)
         improve_flag = in_regression and "--improve" in commands
         maintain_flag = not in_regression and "--maintain" in commands
-        if "--maintain" in commands and maintain_flag:
+        if (
+            "--maintain" in commands
+            and maintain_flag
+            or "--improve" in commands
+            and improve_flag
+        ):
             continue
-        elif "--improve" in commands and improve_flag:
-            continue
-
         # "--suite flag
         if "--suite" in commands:
             if not suite_config:
@@ -287,7 +289,12 @@ def generate_tests() -> None:  # sourcery skip: invert-any-all
 
         json_files = create_challenge(data, json_file, suite_config, json_files)
 
-        if suite_config and not (test_flag or maintain_flag or improve_flag):
+        if (
+            suite_config
+            and not test_flag
+            and not maintain_flag
+            and not improve_flag
+        ):
             print(f"Generated suite for {suite_config.prefix}.")
         else:
             print(f"Generated test for {data['name']}.")

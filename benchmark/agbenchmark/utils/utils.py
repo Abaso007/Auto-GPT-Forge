@@ -120,24 +120,23 @@ def get_highest_success_difficulty(
                         f"Unexpected difficulty level '{highest_difficulty_str}' in test '{test_name}'"
                     )
                     continue
-            else:
-                if test_data["metrics"]["success"]:
-                    difficulty_str = test_data["metrics"]["difficulty"]
+            elif test_data["metrics"]["success"]:
+                difficulty_str = test_data["metrics"]["difficulty"]
 
-                    try:
-                        difficulty_enum = DifficultyLevel[difficulty_str.lower()]
-                        difficulty_level = DIFFICULTY_MAP[difficulty_enum]
+                try:
+                    difficulty_enum = DifficultyLevel[difficulty_str.lower()]
+                    difficulty_level = DIFFICULTY_MAP[difficulty_enum]
 
-                        if difficulty_level > highest_difficulty_level:
-                            highest_difficulty = difficulty_enum
-                            highest_difficulty_level = difficulty_level
-                    except KeyError:
-                        print(
-                            f"Unexpected difficulty level '{difficulty_str}' in test '{test_name}'"
-                        )
-                        continue
+                    if difficulty_level > highest_difficulty_level:
+                        highest_difficulty = difficulty_enum
+                        highest_difficulty_level = difficulty_level
+                except KeyError:
+                    print(
+                        f"Unexpected difficulty level '{difficulty_str}' in test '{test_name}'"
+                    )
+                    continue
         except Exception:
-            print(f"Make sure you selected the right test, no reports were generated.")
+            print("Make sure you selected the right test, no reports were generated.")
             break
 
     if highest_difficulty is not None:
@@ -195,7 +194,7 @@ def calculate_dynamic_paths() -> tuple[Path, str, str, str, str, str]:
 
     benchmarks_folder_path = HOME_DIRECTORY / "agbenchmark"
 
-    if AGENT_NAME and not os.path.join("Auto-GPT-Benchmarks", "agent") in str(
+    if AGENT_NAME and os.path.join("Auto-GPT-Benchmarks", "agent") not in str(
         HOME_DIRECTORY
     ):
         # if the agent name is defined but the run is not from the agent repo, then home is the agent repo
@@ -203,24 +202,13 @@ def calculate_dynamic_paths() -> tuple[Path, str, str, str, str, str]:
         HOME_DIRECTORY = HOME_DIRECTORY / "agent" / AGENT_NAME
         benchmarks_folder_path = HOME_DIRECTORY / "agbenchmark"
 
-        (
-            CONFIG_PATH,
-            REGRESSION_TESTS_PATH,
-            REPORTS_PATH,
-            SUCCESS_RATE_PATH,
-            CHALLENGES_PATH,
-        ) = assign_paths(benchmarks_folder_path)
-    else:
-        # otherwise the default is when home is an agent (running agbenchmark from agent/agent_repo)
-        # used when its just a pip install
-        (
-            CONFIG_PATH,
-            REGRESSION_TESTS_PATH,
-            REPORTS_PATH,
-            SUCCESS_RATE_PATH,
-            CHALLENGES_PATH,
-        ) = assign_paths(benchmarks_folder_path)
-
+    (
+        CONFIG_PATH,
+        REGRESSION_TESTS_PATH,
+        REPORTS_PATH,
+        SUCCESS_RATE_PATH,
+        CHALLENGES_PATH,
+    ) = assign_paths(benchmarks_folder_path)
     if not benchmarks_folder_path.exists():
         benchmarks_folder_path.mkdir(exist_ok=True)
 
@@ -255,10 +243,7 @@ def get_git_commit_sha(directory: Path) -> Optional[str]:
         remote_url = repo.remotes.origin.url
         if remote_url.endswith(".git"):
             remote_url = remote_url[:-4]
-        git_commit_sha = f"{remote_url}/tree/{repo.head.commit.hexsha}"
-
-        # print(f"GIT_COMMIT_SHA: {git_commit_sha}")
-        return git_commit_sha
+        return f"{remote_url}/tree/{repo.head.commit.hexsha}"
     except Exception:
         # print(f"{directory} is not a git repository!")
         return None
@@ -267,10 +252,10 @@ def get_git_commit_sha(directory: Path) -> Optional[str]:
 def agent_eligibible_for_optional_categories(
     optional_challenge_categories: List, agent_categories: List
 ) -> bool:
-    for element in optional_challenge_categories:
-        if element not in agent_categories:
-            return False
-    return True
+    return all(
+        element in agent_categories
+        for element in optional_challenge_categories
+    )
 
 
 def find_absolute_benchmark_path() -> Path:
@@ -285,10 +270,7 @@ def find_absolute_benchmark_path() -> Path:
     )
 
     if benchmark_path_index is not None:
-        # Construct the absolute path starting from "Auto-GPT-Benchmarks"
-        benchmark_path = Path(*current_path.parts[: benchmark_path_index + 1])
-
-        return benchmark_path
+        return Path(*current_path.parts[: benchmark_path_index + 1])
     else:
         raise ValueError(
             "The directory 'Auto-GPT-Benchmarks' is not found in the current path."

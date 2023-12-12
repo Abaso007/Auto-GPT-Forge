@@ -81,7 +81,7 @@ def run_agent(task: str, timeout: int) -> None:
 
     print(f"Running '{entry_path}' with timeout {timeout}")
 
-    command = [sys.executable, "-m", entry_path, str(task)]
+    command = [sys.executable, "-m", entry_path, task]
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
@@ -101,7 +101,7 @@ def run_agent(task: str, timeout: int) -> None:
     process.wait()
 
     if process.returncode != 0:
-        print(f"The agent timed out")
+        print("The agent timed out")
 
 
 def get_list_of_file_paths(

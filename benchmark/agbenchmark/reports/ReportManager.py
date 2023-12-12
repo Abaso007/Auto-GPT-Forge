@@ -23,13 +23,10 @@ class ReportManager:
     def load(self) -> None:
         try:
             with open(self.filename, "r") as f:
-                file_content = (
-                    f.read().strip()
-                )  # read the content and remove any leading/trailing whitespace
-                if file_content:  # if file is not empty, load the json
+                if file_content := (f.read().strip()):
                     data = json.loads(file_content)
                     self.tests = {k: data[k] for k in sorted(data)}
-                else:  # if file is empty, assign an empty dictionary
+                else:
                     self.tests = {}
         except FileNotFoundError:
             self.tests = {}
@@ -69,7 +66,7 @@ class ReportManager:
             ),
             "benchmark_start_time": agbenchmark.start_benchmark.BENCHMARK_START_TIME,
             "metrics": {
-                "run_time": str(round(time.time() - self.start_time, 2)) + " seconds",
+                "run_time": f"{str(round(time.time() - self.start_time, 2))} seconds",
                 "highest_difficulty": get_highest_success_difficulty(self.tests),
                 "total_cost": self.get_total_costs(),
             },

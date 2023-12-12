@@ -10,13 +10,13 @@ def check(list):
     return None
 
 def checkDiagLeft(board):
-    if (board[0][0] == board[1][1] and board[1][1] == board[2][2]):
+    if board[0][0] == board[1][1] == board[2][2]:
         if board[0][0] != 0:
             return board[0][0]
     return None
 
 def checkDiagRight(board):
-    if (board[2][0] == board[1][1] and board[1][1] == board[0][2]):
+    if board[2][0] == board[1][1] == board[0][2]:
         if board[2][0] != 0:
             return board[2][0]
     return None
@@ -28,10 +28,7 @@ def placeItem(row, column, board, current_player):
         board[row][column] = current_player
 
 def swapPlayers(player):
-    if (player == 2):
-        return 1
-    else:
-        return 2
+    return 1 if (player == 2) else 2
 
 def winner(board):
     for rowIndex in board:
@@ -42,9 +39,7 @@ def winner(board):
             return check(column(board, columnIndex))
     if checkDiagLeft(board) is not None:
         return checkDiagLeft(board)
-    if checkDiagRight(board) is not None:
-        return checkDiagRight(board)
-    return 0
+    return checkDiagRight(board) if checkDiagRight(board) is not None else 0
 
 def getLocation():
     location = input("Choose where to play. Enter two numbers separated by a comma, for example: 1,1 ")
@@ -60,7 +55,7 @@ def gamePlay():
     num_moves = 0
     pp = pprint.PrettyPrinter(width=20)
     current_player = 1
-    board = [[0 for x in range(3)] for x in range(3)]
+    board = [[0 for _ in range(3)] for _ in range(3)]
 
     while (num_moves < 9 and winner(board) == 0):
         print("This is the current board: ")

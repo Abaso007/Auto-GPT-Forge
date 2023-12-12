@@ -17,11 +17,7 @@ def get_reports():
     current_dir = os.getcwd()
 
     # Check if the current directory ends with 'reports'
-    if current_dir.endswith("reports"):
-        reports_dir = "/"
-    else:
-        reports_dir = "reports"
-
+    reports_dir = "/" if current_dir.endswith("reports") else "reports"
     # Iterate over all agent directories in the reports directory
     for agent_name in os.listdir(reports_dir):
         if agent_name is None:
@@ -75,7 +71,7 @@ def get_reports():
                                         test_json["success_%"] = suite_data.metrics.success_percent
                                         test_json["run_time"] = suite_data.metrics.run_time
                                         test_json["is_regression"] = suite_data.is_regression
-                                
+
                             else:
                                 test_json["challenge"] = test_name
                                 test_json["attempted"] = test_data.metrics.attempted
@@ -86,9 +82,9 @@ def get_reports():
                                 test_json["success_%"] = test_data.metrics.success_percent
                                 test_json["run_time"] = test_data.metrics.run_time
                                 test_json["is_regression"] = test_data.is_regression
-                                
+
                             report_data.append(test_json)
-                                
+
     return pd.DataFrame(report_data)
 
 
